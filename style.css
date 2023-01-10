@@ -1,0 +1,52 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+html {
+  font-size: 62.5%;
+}
+body {
+  background-color: rgb(31, 51, 51);
+  overflow: hidden;
+}
+.body-con {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+.piano-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+}
+.white {
+  width: 4rem;
+  height: 15rem;
+  background-color: white;
+  outline: solid black 1px;
+}
+.white:hover {
+  background-color: rgb(240, 240, 240);
+}
+.white:active {
+  background-color: rgb(220, 220, 220);
+}
+.black {
+  width: 2rem;
+  height: 8rem;
+  background-color: black;
+  margin-left: -1.5rem;
+  margin-right: -1.1rem;
+  z-index: 2;
+}
+.black:hover {
+  background-color: rgb(31, 31, 31);
+}
+.black:active {
+  background-color: rgb(54, 54, 54);
+}
+.key:hover {
+  cursor: pointer;
+}
