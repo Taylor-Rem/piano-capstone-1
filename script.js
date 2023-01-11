@@ -13,6 +13,28 @@ let startOctave = 4;
 // decl next octave
 let upOctave = startOctave + 1;
 
+// deletes piano from DOM
+let deletePiano = () => {
+  while (pianoContainer.firstChild) {
+    pianoContainer.removeChild(pianoContainer.firstChild);
+  }
+};
+
+btns[0].addEventListener('click', () => {
+  if (startOctave > 1) {
+    startOctave--;
+  }
+  deletePiano();
+  createPiano();
+});
+btns[1].addEventListener('click', () => {
+  if (startOctave < 6) {
+    startOctave++;
+  }
+  deletePiano();
+  createPiano();
+});
+
 // CREATING PIANO
 let createPiano = () => {
   // number of octaves
@@ -22,13 +44,6 @@ let createPiano = () => {
       if (notes[i] === 'E' || notes[i] === 'B') {
         hasSharp = false;
       }
-
-      btns[0].addEventListener('click', () => {
-        startOctave--;
-      });
-      btns[1].addEventListener('click', () => {
-        startOctave++;
-      });
 
       let key = document.createElement('div');
       key.setAttribute('data-note', notes[i] + (k + startOctave));
@@ -42,9 +57,20 @@ let createPiano = () => {
       }
     }
   }
+  let keys = document.querySelectorAll('.key');
+  keys.forEach((key) => {
+    key.addEventListener('click', () => {
+      synth.triggerAttackRelease(key.dataset.note, '16n');
+      changeColors(key);
+    });
+  });
+
+  document.addEventListener('keydown', (e) => {
+    synth.triggerAttackRelease(keydowns[e.key], '16n');
+    changeColors(e);
+  });
 };
 createPiano();
-let keys = document.querySelectorAll('.key');
 
 let keydowns = {
   z: 'C' + startOctave,
@@ -72,18 +98,6 @@ let keydowns = {
   7: 'A#' + upOctave,
   u: 'B' + upOctave,
 };
-
-keys.forEach((key) => {
-  key.addEventListener('click', () => {
-    synth.triggerAttackRelease(key.dataset.note, '16n');
-    changeColors(key);
-  });
-});
-
-document.addEventListener('keydown', (e) => {
-  synth.triggerAttackRelease(keydowns[e.key], '16n');
-  changeColors(e);
-});
 
 let changeColors = (e) => {
   let note;
