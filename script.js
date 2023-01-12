@@ -120,13 +120,14 @@ const pressKeys = () => {
     u: 'B' + (startOctave + 1),
   };
 
+  const findNote = (e) => (e.key ? keydowns[e.key] : e.dataset.note);
+
   keys.forEach((key) => {
     key.addEventListener('click', () => {
-      let note = key.dataset.note;
+      let note = findNote(key);
       synth.triggerAttackRelease(note, '16n');
-      let keyElement = document.querySelector(`[data-note="${note}"]`);
-      keyElement.style.backgroundColor =
-        note.length > 2 ? 'rgb(54, 54, 54)' : 'rgb(220, 220, 220)';
+      changeColor(note, 'rgb(54, 54, 54)', 'rgb(220, 220, 220)');
+      let keyElement = changeColor(note);
       setTimeout(() => {
         keyElement.style.backgroundColor = note.length > 2 ? 'black' : 'white';
       }, 200);
@@ -134,30 +135,31 @@ const pressKeys = () => {
     });
   });
 
-  const keyboardInput = (e, blackKeys, whiteKeys) => {
-    let note;
+  const changeColor = (note, blackKeys, whiteKeys) => {
+    let keyElement = document.querySelector(`[data-note="${note}"]`);
     for (let key in keydowns) {
-      if (keydowns[e.key] === keydowns[key]) {
-        note = keydowns[e.key];
-        let keyElement = document.querySelector(`[data-note="${note}"]`);
+      if (note === keydowns[key]) {
         keyElement.style.backgroundColor =
           note.length > 2 ? blackKeys : whiteKeys;
       }
     }
-    return note;
+    return keyElement;
   };
 
   document.addEventListener('keydown', (e) => {
     if (e.repeat) return;
-    keyboardInput(e, 'rgb(54, 54, 54)', 'rgb(220, 220, 220)');
-    synth.triggerAttack(keyboardInput(e));
+    let note = findNote(e);
+    changeColor(note, 'rgb(54, 54, 54)', 'rgb(220, 220, 220)');
+    synth.triggerAttack(note);
   });
   document.addEventListener('keyup', (e) => {
-    keyboardInput(e, 'Black', 'White');
-    synth.triggerRelease(keyboardInput(e));
+    let note = findNote(e);
+    changeColor(note, 'Black', 'White');
+    synth.triggerRelease(note);
   });
   document.addEventListener('keyup', (e) => {
-    synth.triggerRelease(keyboardInput(e));
+    let note = findNote(e);
+    synth.triggerRelease(note);
   });
 };
 pressKeys();
