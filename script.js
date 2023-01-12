@@ -2,35 +2,63 @@ let pianoContainer = document.querySelector('.piano-container');
 let btns = document.querySelectorAll('button');
 
 // create synth
-let synth = new Tone.PolySynth(Tone.Synth).toDestination();
-const now = Tone.now();
+const synth = new Tone.PolySynth(Tone.Synth).toDestination();
 
 // create notes
-let notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+const notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 
 // decl start octave
 let startOctave = 4;
 
-// change octaves buttons
-btns[0].addEventListener('click', () => {
+// CHANGE OCTAVE FUNCTIONS
+
+// every time octave is changed
+const octaveChange = () => {
+  pianoContainer.innerHTML = '';
+  createPiano();
+  pressKeys();
+};
+
+// octave down function
+const octaveDown = () => {
   if (startOctave > 1) {
     startOctave--;
   }
-  pianoContainer.innerHTML = '';
-  createPiano();
-  pressKeys();
+};
+// octave down event listeners
+btns[0].addEventListener('click', () => {
+  octaveDown();
+  octaveChange();
 });
-btns[1].addEventListener('click', () => {
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === '[') {
+    octaveDown();
+    octaveChange();
+  }
+});
+
+// octave up function
+const octaveUp = () => {
   if (startOctave < 6) {
     startOctave++;
   }
-  pianoContainer.innerHTML = '';
-  createPiano();
-  pressKeys();
+};
+// octave up event listeners
+btns[1].addEventListener('click', () => {
+  octaveUp();
+  octaveChange();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === ']') {
+    octaveUp();
+    octaveChange();
+  }
 });
 
 // CREATING PIANO
-let createPiano = () => {
+const createPiano = () => {
   // number of octaves
   for (let k = 0; k < 2; k++) {
     for (let i = 0; i < notes.length; i++) {
@@ -60,7 +88,7 @@ createPiano();
 let keydowns = {};
 
 // pressing keys event handlers
-let pressKeys = () => {
+const pressKeys = () => {
   let keys = document.querySelectorAll('.key');
   keydowns = {
     z: 'C' + startOctave,
@@ -91,6 +119,7 @@ let pressKeys = () => {
     7: 'A#' + (startOctave + 1),
     u: 'B' + (startOctave + 1),
   };
+
   keys.forEach((key) => {
     key.addEventListener('click', () => {
       let note = key.dataset.note;
@@ -104,6 +133,7 @@ let pressKeys = () => {
       recordNote(note);
     });
   });
+
   const keyboardInput = (e, blackKeys, whiteKeys) => {
     let note;
     for (let key in keydowns) {
@@ -136,5 +166,5 @@ pressKeys();
 let recordNote = (note) => {
   let notePlayed = [];
   notePlayed.push({ played: note, time: Math.floor(performance.now()) });
-  console.log(notePlayed);
+  // console.log(notePlayed);
 };
