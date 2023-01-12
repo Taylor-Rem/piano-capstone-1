@@ -85,6 +85,21 @@ createPiano();
 // KEYBOARD INTERACT
 let keydowns = {};
 
+// key color change
+const changeColor = (note, blackKeys, whiteKeys) => {
+  let keyElement = document.querySelector(`[data-note="${note}"]`);
+  for (let key in keydowns) {
+    if (note === keydowns[key]) {
+      keyElement.style.backgroundColor =
+        note.length > 2 ? blackKeys : whiteKeys;
+    }
+  }
+  return keyElement;
+};
+
+// finds note played
+const findNote = (e) => (e.key ? keydowns[e.key] : e.dataset.note);
+
 // pressing keys function
 const pressKeys = () => {
   // updating DOM
@@ -119,10 +134,6 @@ const pressKeys = () => {
     7: 'A#' + (startOctave + 1),
     u: 'B' + (startOctave + 1),
   };
-
-  // finds note played
-  const findNote = (e) => (e.key ? keydowns[e.key] : e.dataset.note);
-
   // playing with mouse click
   keys.forEach((key) => {
     key.addEventListener('click', () => {
@@ -135,42 +146,32 @@ const pressKeys = () => {
       }, 200);
     });
   });
-
-  // key color change
-  const changeColor = (note, blackKeys, whiteKeys) => {
-    let keyElement = document.querySelector(`[data-note="${note}"]`);
-    for (let key in keydowns) {
-      if (note === keydowns[key]) {
-        keyElement.style.backgroundColor =
-          note.length > 2 ? blackKeys : whiteKeys;
-      }
-    }
-    return keyElement;
-  };
-  // keydown event listener
-  document.addEventListener('keydown', (e) => {
-    if (e.repeat) return;
-    let note = findNote(e);
-    changeColor(note, 'rgb(54, 54, 54)', 'rgb(220, 220, 220)');
-    synth.triggerAttack(note);
-  });
-  // keyup event listener
-  document.addEventListener('keyup', (e) => {
-    let note = findNote(e);
-    changeColor(note, 'Black', 'White');
-    synth.triggerRelease(note);
-  });
-  // second keyup fixes endless note bug
-  document.addEventListener('keyup', (e) => {
-    let note = findNote(e);
-    synth.triggerRelease(note);
-  });
 };
 pressKeys();
 
+// keydown event listener
+document.addEventListener('keydown', (e) => {
+  if (e.repeat) return;
+  let note = findNote(e);
+  changeColor(note, 'rgb(54, 54, 54)', 'rgb(220, 220, 220)');
+  synth.triggerAttack(note);
+  recordNote(note);
+});
+// keyup event listener
+document.addEventListener('keyup', (e) => {
+  let note = findNote(e);
+  changeColor(note, 'Black', 'White');
+  synth.triggerRelease(note);
+});
+// second keyup fixes endless note bug
+document.addEventListener('keyup', (e) => {
+  let note = findNote(e);
+  synth.triggerRelease(note);
+});
+
 // recording notes played
+let notePlayed = [];
 let recordNote = (note) => {
-  let notePlayed = [];
   notePlayed.push({ played: note, time: Math.floor(performance.now()) });
-  // console.log(notePlayed);
+  console.log(notePlayed);
 };
