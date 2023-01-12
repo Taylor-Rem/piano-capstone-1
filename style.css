@@ -69,9 +69,6 @@ p {
   background-color: white;
   outline: solid black 1px;
 }
-.white:hover {
-  background-color: rgb(220, 220, 220);
-}
 .black {
   width: 2rem;
   height: 8rem;
@@ -79,9 +76,6 @@ p {
   margin-left: -1.5rem;
   margin-right: -1.1rem;
   z-index: 2;
-}
-.black:hover {
-  background-color: rgb(54, 54, 54);
 }
 .key:hover {
   cursor: pointer;

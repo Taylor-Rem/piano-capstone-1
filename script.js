@@ -30,7 +30,6 @@ btns[0].addEventListener('click', () => {
   octaveDown();
   octaveChange();
 });
-
 document.addEventListener('keydown', (e) => {
   if (e.key === '[') {
     octaveDown();
@@ -49,7 +48,6 @@ btns[1].addEventListener('click', () => {
   octaveUp();
   octaveChange();
 });
-
 document.addEventListener('keydown', (e) => {
   if (e.key === ']') {
     octaveUp();
@@ -87,9 +85,11 @@ createPiano();
 // KEYBOARD INTERACT
 let keydowns = {};
 
-// pressing keys event handlers
+// pressing keys function
 const pressKeys = () => {
+  // updating DOM
   let keys = document.querySelectorAll('.key');
+  // defining keys pressed on keyboard interact
   keydowns = {
     z: 'C' + startOctave,
     s: 'C#' + startOctave,
@@ -120,8 +120,10 @@ const pressKeys = () => {
     u: 'B' + (startOctave + 1),
   };
 
+  // finds note played
   const findNote = (e) => (e.key ? keydowns[e.key] : e.dataset.note);
 
+  // playing with mouse click
   keys.forEach((key) => {
     key.addEventListener('click', () => {
       let note = findNote(key);
@@ -131,10 +133,10 @@ const pressKeys = () => {
       setTimeout(() => {
         keyElement.style.backgroundColor = note.length > 2 ? 'black' : 'white';
       }, 200);
-      recordNote(note);
     });
   });
 
+  // key color change
   const changeColor = (note, blackKeys, whiteKeys) => {
     let keyElement = document.querySelector(`[data-note="${note}"]`);
     for (let key in keydowns) {
@@ -145,18 +147,20 @@ const pressKeys = () => {
     }
     return keyElement;
   };
-
+  // keydown event listener
   document.addEventListener('keydown', (e) => {
     if (e.repeat) return;
     let note = findNote(e);
     changeColor(note, 'rgb(54, 54, 54)', 'rgb(220, 220, 220)');
     synth.triggerAttack(note);
   });
+  // keyup event listener
   document.addEventListener('keyup', (e) => {
     let note = findNote(e);
     changeColor(note, 'Black', 'White');
     synth.triggerRelease(note);
   });
+  // second keyup fixes endless note bug
   document.addEventListener('keyup', (e) => {
     let note = findNote(e);
     synth.triggerRelease(note);
