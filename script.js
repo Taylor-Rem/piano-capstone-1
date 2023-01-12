@@ -1,4 +1,3 @@
-// decl piano container
 let pianoContainer = document.querySelector('.piano-container');
 let btns = document.querySelectorAll('button');
 
@@ -105,30 +104,30 @@ let pressKeys = () => {
       recordNote(note);
     });
   });
+  const keyboardInput = (e, blackKeys, whiteKeys) => {
+    let note;
+    for (let key in keydowns) {
+      if (keydowns[e.key] === keydowns[key]) {
+        note = keydowns[e.key];
+        let keyElement = document.querySelector(`[data-note="${note}"]`);
+        keyElement.style.backgroundColor =
+          note.length > 2 ? blackKeys : whiteKeys;
+      }
+    }
+    return note;
+  };
 
   document.addEventListener('keydown', (e) => {
     if (e.repeat) return;
-    for (let key in keydowns) {
-      if (keydowns[e.key] === keydowns[key]) {
-        let note = keydowns[e.key];
-        synth.triggerAttack(note);
-        recordNote(note);
-        let keyElement = document.querySelector(`[data-note="${note}"]`);
-        keyElement.style.backgroundColor =
-          note.length > 2 ? 'rgb(54, 54, 54)' : 'rgb(220, 220, 220)';
-      }
-    }
+    keyboardInput(e, 'rgb(54, 54, 54)', 'rgb(220, 220, 220)');
+    synth.triggerAttack(keyboardInput(e));
   });
   document.addEventListener('keyup', (e) => {
-    if (e.repeat) return;
-    for (let key in keydowns) {
-      if (keydowns[e.key] === keydowns[key]) {
-        let note = keydowns[e.key];
-        synth.triggerRelease(note);
-        let keyElement = document.querySelector(`[data-note="${note}"]`);
-        keyElement.style.backgroundColor = note.length > 2 ? 'black' : 'white';
-      }
-    }
+    keyboardInput(e, 'Black', 'White');
+    synth.triggerRelease(keyboardInput(e));
+  });
+  document.addEventListener('keyup', (e) => {
+    synth.triggerRelease(keyboardInput(e));
   });
 };
 pressKeys();
