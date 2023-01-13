@@ -86,6 +86,9 @@ createPiano();
 let keydowns = {};
 let keys;
 
+// finds note played
+const findNote = (e) => (e.key ? keydowns[e.key] : e.dataset.note);
+
 // pressing keys function
 const updateDOM = () => {
   // updating DOM
@@ -122,6 +125,15 @@ const updateDOM = () => {
     7: 'A#' + (startOctave + 1),
     u: 'B' + (startOctave + 1),
   };
+  // mouse click event listener
+  keys.forEach((key) => {
+    key.addEventListener('click', () => {
+      let note = findNote(key);
+      synth.triggerAttackRelease(note, '16n');
+      changeColor(note, 'rgb(54, 54, 54)', 'rgb(220, 220, 220)');
+      setTimeout(() => changeColor(note, 'Black', 'White'), 200);
+    });
+  });
 };
 updateDOM();
 
@@ -138,39 +150,24 @@ const changeColor = (note, blackKeys, whiteKeys) => {
   }
 };
 
-// finds note played
-const findNote = (e) => (e.key ? keydowns[e.key] : e.dataset.note);
-
-// playing with mouse click
-
-// mouse click event listener
-keys.forEach((key) => {
-  key.addEventListener('click', () => {
-    let note = findNote(key);
-    synth.triggerAttackRelease(note, '16n');
-    changeColor(note, 'rgb(54, 54, 54)', 'rgb(220, 220, 220)');
-    setTimeout(() => changeColor(note, 'Black', 'White'), 200);
-  });
-});
-
 // playing with keyboard
-
 // decl last key pressed
-let lastKey;
+let pressedKeys = new Set();
 // keydown event listener
 document.addEventListener('keydown', (e) => {
   // makes sure not to press same key more than once when held
-  if (e.key === lastKey) return;
-  lastKey = e.key;
+  if (pressedKeys.has(e.key)) return;
+  pressedKeys.add(e.key);
   // decl note for color change and sound
   let note = findNote(e);
   changeColor(note, 'rgb(54, 54, 54)', 'rgb(220, 220, 220)');
   synth.triggerAttack(note);
   recordNote(note);
 });
+
 // keyup event listener
 document.addEventListener('keyup', (e) => {
-  lastKey = '';
+  pressedKeys.delete(e.key);
   let note = findNote(e);
   changeColor(note, 'Black', 'White');
   synth.triggerRelease(note);
