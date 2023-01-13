@@ -106,9 +106,11 @@ const updateDOM = () => {
     m: 'B' + startOctave,
     ',': 'C' + (startOctave + 1),
     q: 'C' + (startOctave + 1),
+    l: 'C#' + (startOctave + 1),
     2: 'C#' + (startOctave + 1),
     '.': 'D' + (startOctave + 1),
     w: 'D' + (startOctave + 1),
+    ';': 'D#' + (startOctave + 1),
     3: 'D#' + (startOctave + 1),
     '/': 'E' + (startOctave + 1),
     e: 'E' + (startOctave + 1),
@@ -152,8 +154,13 @@ keys.forEach((key) => {
 
 // playing with keyboard
 // keydown event listener
+
+let lastKey;
 document.addEventListener('keydown', (e) => {
-  if (e.repeat) return;
+  // makes sure not to press same key more than once when held
+  if (e.key == lastKey) return;
+  lastKey = e.key;
+  // decl note for color change and sound
   let note = findNote(e);
   changeColor(note, 'rgb(54, 54, 54)', 'rgb(220, 220, 220)');
   synth.triggerAttack(note);
@@ -165,8 +172,6 @@ document.addEventListener('keyup', (e) => {
   changeColor(note, 'Black', 'White');
   synth.triggerRelease(note);
 });
-// second keyup fixes endless note bug
-document.addEventListener('keyup', (e) => synth.triggerRelease(findNote(e)));
 
 // recording notes played
 let notePlayed = [];
