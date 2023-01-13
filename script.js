@@ -142,6 +142,7 @@ const changeColor = (note, blackKeys, whiteKeys) => {
 const findNote = (e) => (e.key ? keydowns[e.key] : e.dataset.note);
 
 // playing with mouse click
+
 // mouse click event listener
 keys.forEach((key) => {
   key.addEventListener('click', () => {
@@ -153,12 +154,13 @@ keys.forEach((key) => {
 });
 
 // playing with keyboard
-// keydown event listener
 
+// decl last key pressed
 let lastKey;
+// keydown event listener
 document.addEventListener('keydown', (e) => {
   // makes sure not to press same key more than once when held
-  if (e.key == lastKey) return;
+  if (e.key === lastKey) return;
   lastKey = e.key;
   // decl note for color change and sound
   let note = findNote(e);
@@ -168,6 +170,7 @@ document.addEventListener('keydown', (e) => {
 });
 // keyup event listener
 document.addEventListener('keyup', (e) => {
+  lastKey = '';
   let note = findNote(e);
   changeColor(note, 'Black', 'White');
   synth.triggerRelease(note);
