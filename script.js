@@ -16,7 +16,7 @@ let startOctave = 4;
 const octaveChange = () => {
   pianoContainer.innerHTML = '';
   createPiano();
-  pressKeys();
+  updateDOM();
 };
 
 // octave down function
@@ -82,28 +82,14 @@ const createPiano = () => {
 };
 createPiano();
 
-// KEYBOARD INTERACT
+// decl DOM elements
 let keydowns = {};
-
-// key color change
-const changeColor = (note, blackKeys, whiteKeys) => {
-  let keyElement = document.querySelector(`[data-note="${note}"]`);
-  for (let key in keydowns) {
-    if (note === keydowns[key]) {
-      keyElement.style.backgroundColor =
-        note.length > 2 ? blackKeys : whiteKeys;
-    }
-  }
-  return keyElement;
-};
-
-// finds note played
-const findNote = (e) => (e.key ? keydowns[e.key] : e.dataset.note);
+let keys;
 
 // pressing keys function
-const pressKeys = () => {
+const updateDOM = () => {
   // updating DOM
-  let keys = document.querySelectorAll('.key');
+  keys = document.querySelectorAll('.key');
   // defining keys pressed on keyboard interact
   keydowns = {
     z: 'C' + startOctave,
@@ -134,21 +120,37 @@ const pressKeys = () => {
     7: 'A#' + (startOctave + 1),
     u: 'B' + (startOctave + 1),
   };
-  // playing with mouse click
-  keys.forEach((key) => {
-    key.addEventListener('click', () => {
-      let note = findNote(key);
-      synth.triggerAttackRelease(note, '16n');
-      changeColor(note, 'rgb(54, 54, 54)', 'rgb(220, 220, 220)');
-      let keyElement = changeColor(note);
-      setTimeout(() => {
-        keyElement.style.backgroundColor = note.length > 2 ? 'black' : 'white';
-      }, 200);
-    });
-  });
 };
-pressKeys();
+updateDOM();
 
+// NOTE PRESS FUNCTIONS
+
+// key color change
+const changeColor = (note, blackKeys, whiteKeys) => {
+  let keyElement = document.querySelector(`[data-note="${note}"]`);
+  for (let key in keydowns) {
+    if (note === keydowns[key]) {
+      keyElement.style.backgroundColor =
+        note.length > 2 ? blackKeys : whiteKeys;
+    }
+  }
+};
+
+// finds note played
+const findNote = (e) => (e.key ? keydowns[e.key] : e.dataset.note);
+
+// playing with mouse click
+// mouse click event listener
+keys.forEach((key) => {
+  key.addEventListener('click', () => {
+    let note = findNote(key);
+    synth.triggerAttackRelease(note, '16n');
+    changeColor(note, 'rgb(54, 54, 54)', 'rgb(220, 220, 220)');
+    setTimeout(() => changeColor(note, 'Black', 'White'), 200);
+  });
+});
+
+// playing with keyboard
 // keydown event listener
 document.addEventListener('keydown', (e) => {
   if (e.repeat) return;
@@ -164,10 +166,7 @@ document.addEventListener('keyup', (e) => {
   synth.triggerRelease(note);
 });
 // second keyup fixes endless note bug
-document.addEventListener('keyup', (e) => {
-  let note = findNote(e);
-  synth.triggerRelease(note);
-});
+document.addEventListener('keyup', (e) => synth.triggerRelease(findNote(e)));
 
 // recording notes played
 let notePlayed = [];
