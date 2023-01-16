@@ -1,5 +1,6 @@
 let pianoContainer = document.querySelector('.piano-container');
 let btns = document.querySelectorAll('button');
+let recordDiv = document.querySelector('.record');
 
 // create synth
 const synth = new Tone.PolySynth(Tone.Synth).toDestination();
@@ -86,12 +87,8 @@ createPiano();
 let keydowns = {};
 let keys;
 
-// finds note played
-const findNote = (e) => (e.key ? keydowns[e.key] : e.dataset.note);
-
-// pressing keys function
+// updating DOM
 const updateDOM = () => {
-  // updating DOM
   keys = document.querySelectorAll('.key');
   // defining keys pressed on keyboard interact
   keydowns = {
@@ -128,7 +125,7 @@ const updateDOM = () => {
   // mouse click event listener
   keys.forEach((key) => {
     key.addEventListener('click', () => {
-      let note = findNote(key);
+      let note = key.dataset.note;
       synth.triggerAttackRelease(note, '16n');
       changeColor(note, 'rgb(54, 54, 54)', 'rgb(220, 220, 220)');
       setTimeout(() => changeColor(note, 'Black', 'White'), 200);
@@ -136,6 +133,17 @@ const updateDOM = () => {
   });
 };
 updateDOM();
+
+// RECORDING
+let recording = false;
+// start recording - change button icon
+btns[2].addEventListener('click', () => {
+  recording = !recording;
+  btns[2].innerHTML = recording
+    ? '<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" class="w-6 h-6 stop"><path d="M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z"/>'
+    : '<svg height="35" width="35"><circle cx="15" cy="20" r="15" fill="white"/></svg>';
+  startTimer();
+});
 
 // NOTE PRESS FUNCTIONS
 
@@ -151,31 +159,67 @@ const changeColor = (note, blackKeys, whiteKeys) => {
 };
 
 // playing with keyboard
-// decl last key pressed
+// decl all keys pressed
 let pressedKeys = new Set();
+let keyPressTime = {};
 // keydown event listener
+
 document.addEventListener('keydown', (e) => {
-  // makes sure not to press same key more than once when held
-  if (pressedKeys.has(e.key)) return;
-  pressedKeys.add(e.key);
-  // decl note for color change and sound
-  let note = findNote(e);
+  let note = keydowns[e.key];
+  if (pressedKeys.has(note)) return;
+  pressedKeys.add(note);
+  keyPressTime[note] = Date.now();
   changeColor(note, 'rgb(54, 54, 54)', 'rgb(220, 220, 220)');
   synth.triggerAttack(note);
-  recordNote(note);
+  for (let key in keydowns) {
+    if (note === keydowns[key]) {
+      noteAndHeld['time'] = time;
+    }
+  }
 });
+let noteAndHeld = {};
+let noteArr = [];
+
+let startTime;
+let timerId;
+let time = 0;
+
+const startTimer = () => {
+  if (!startTime) {
+    noteArr = [];
+    startTime = Date.now();
+    timerId = setInterval(() => {
+      time += 10;
+    }, 10);
+  } else {
+    clearInterval(timerId);
+    startTime = null;
+    time = 0;
+  }
+};
 
 // keyup event listener
 document.addEventListener('keyup', (e) => {
-  pressedKeys.delete(e.key);
-  let note = findNote(e);
+  let note = keydowns[e.key];
+  pressedKeys.delete(note);
+  let timeHeld = Date.now() - keyPressTime[note];
+  for (let key in keydowns) {
+    if (recording) {
+      if (note === keydowns[key]) {
+        noteAndHeld['note'] = note;
+        noteAndHeld['held'] = timeHeld;
+
+        noteArr.push(noteAndHeld);
+        noteAndHeld = {};
+      }
+    }
+  }
+
   changeColor(note, 'Black', 'White');
   synth.triggerRelease(note);
+  keyPressTime[note] = Date.now() - keyPressTime[note];
 });
 
-// recording notes played
-let notePlayed = [];
-let recordNote = (note) => {
-  notePlayed.push({ played: note, time: Math.floor(performance.now()) });
-  console.log(notePlayed);
-};
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'p') console.log(noteArr);
+});
