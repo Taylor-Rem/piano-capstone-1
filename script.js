@@ -171,11 +171,6 @@ document.addEventListener('keydown', (e) => {
   keyPressTime[note] = Date.now();
   changeColor(note, 'rgb(54, 54, 54)', 'rgb(220, 220, 220)');
   synth.triggerAttack(note);
-  for (let key in keydowns) {
-    if (note === keydowns[key]) {
-      noteAndHeld['time'] = time;
-    }
-  }
 });
 let noteAndHeld = {};
 let noteArr = [];
@@ -208,7 +203,7 @@ document.addEventListener('keyup', (e) => {
       if (note === keydowns[key]) {
         noteAndHeld['note'] = note;
         noteAndHeld['held'] = timeHeld;
-
+        noteAndHeld['time'] = time - timeHeld;
         noteArr.push(noteAndHeld);
         noteAndHeld = {};
       }
