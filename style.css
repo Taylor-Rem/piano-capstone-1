@@ -27,9 +27,9 @@ body {
 }
 .octave-change {
   display: flex;
-  justify-content: center;
+  width: 20rem;
+  justify-content: space-around;
   align-items: center;
-  background-color: #bb834a;
   border-radius: 0.5rem;
 }
 button {
@@ -42,7 +42,6 @@ button:hover {
 .record {
   width: 5rem;
   height: 5rem;
-  background-color: #bb834a;
   border-radius: 0.5rem;
   display: flex;
   align-items: center;
@@ -51,16 +50,16 @@ button:hover {
 
 svg {
   color: white;
-  width: 3rem;
+  background-color: white;
+  width: 5rem;
+  background-color: #bb834a;
+  border-radius: 0.5rem;
 }
 svg:hover {
   color: rgb(255, 121, 18);
 }
 svg:active {
-  color: rgb(255, 34, 18);
-}
-.stop {
-  width: 5rem;
+  color: #850b02;
 }
 p {
   color: white;

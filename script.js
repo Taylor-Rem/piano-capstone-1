@@ -136,13 +136,24 @@ updateDOM();
 
 // RECORDING
 let recording = false;
+let pressedKeys = new Set();
+let keyPressTime = {};
+let noteAndHeld = {};
+let noteArr = [];
+let startTime;
+let timerId;
+let time = 0;
+let isPlaying = false;
+
 // start recording - change button icon
 btns[2].addEventListener('click', () => {
-  recording = !recording;
-  btns[2].innerHTML = recording
-    ? '<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" class="w-6 h-6 stop"><path d="M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z"/>'
-    : '<svg height="35" width="35"><circle cx="15" cy="20" r="15" fill="white"/></svg>';
-  startTimer();
+  if (!isPlaying) {
+    recording = !recording;
+    btns[2].innerHTML = recording
+      ? '<svg xmlns="http://www.w3.org/2000/svg" fill="red" viewBox="0 0 24 24" class="w-6 h-6 stop"><path d="M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z"/>'
+      : '<svg height="50" width="35"><circle cx="25" cy="25" r="15" fill="white"/></svg>';
+    startTimer();
+  }
 });
 
 // NOTE PRESS FUNCTIONS
@@ -160,8 +171,7 @@ const changeColor = (note, blackKeys, whiteKeys) => {
 
 // playing with keyboard
 // decl all keys pressed
-let pressedKeys = new Set();
-let keyPressTime = {};
+
 // keydown event listener
 
 document.addEventListener('keydown', (e) => {
@@ -169,15 +179,9 @@ document.addEventListener('keydown', (e) => {
   if (pressedKeys.has(note)) return;
   pressedKeys.add(note);
   keyPressTime[note] = Date.now();
-  changeColor(note, 'rgb(54, 54, 54)', 'rgb(220, 220, 220)');
+  changeColor(note, '#363636', '#dcdcdc');
   synth.triggerAttack(note);
 });
-let noteAndHeld = {};
-let noteArr = [];
-
-let startTime;
-let timerId;
-let time = 0;
 
 const startTimer = () => {
   if (!startTime) {
@@ -190,6 +194,7 @@ const startTimer = () => {
     clearInterval(timerId);
     startTime = null;
     time = 0;
+    console.log(noteArr);
   }
 };
 
@@ -209,12 +214,29 @@ document.addEventListener('keyup', (e) => {
       }
     }
   }
-
   changeColor(note, 'Black', 'White');
   synth.triggerRelease(note);
   keyPressTime[note] = Date.now() - keyPressTime[note];
 });
 
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'p') console.log(noteArr);
+btns[3].addEventListener('click', () => {
+  if (!recording) {
+    isPlaying = !isPlaying;
+    btns[3].innerHTML = isPlaying
+      ? '<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" class="w-6 h-6 stop"><path d="M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z"/>'
+      : '<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" class="w-6 h-6"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>';
+    if (isPlaying) {
+      for (let i = 0; i < noteArr.length; i++) {
+        let { time, note, held } = noteArr[i];
+        setTimeout(() => {
+          synth.triggerAttack(note);
+          setTimeout(() => {
+            synth.triggerRelease(note);
+            changeColor(note, 'Black', 'White');
+          }, held);
+          changeColor(note, '#363636', '#dcdcdc');
+        }, time);
+      }
+    }
+  }
 });
